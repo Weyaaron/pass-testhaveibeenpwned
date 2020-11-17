@@ -4,49 +4,27 @@ from pathlib import Path
 import hashlib
 import glob
 
-
-
-
-def passwordHasBeenFound(passWordArg):
-    hash_object = hashlib.sha1(bytes(passWordArg, "utf8"))
-    hex_dig = hash_object.hexdigest()
-
-    arg = hex_dig[0:5]
-    apiResult = requests.get("https://api.pwnedpasswords.com/range/" + arg)
-
-    hashList = apiResult.text.split("\n")
-
-    for hash in hashList:
-        arg1 = hex_dig[5:len(hex_dig)].lower()
-        arg2 = hash.split(":")[0].lower()
-        if arg1 == arg2:
-            return True
-
-    return False
+import hashlib
+from utils import passwordHasBeenFound
 
 def main():
     gpg = gnupg.GPG(homedir='/home/aaron/.gnupg', verbose=True)
 
-    pathToPasswordDir = Path("/home/aaron/.password-store")
+    pathToPasswordDir = Path("/home/aaron/Code/Python/Security-Utils/files").absolute()
 
-    private_keys = gpg.list_keys(True)
-    print(private_keys)
-    passswords = []
+    passwords = []
 
-    filePaths = glob.glob(str(pathToPasswordDir) +"/*.gpg", recursive=True)
-    for filePathEl in filePaths:
-        passwordFile = open(Path(filePathEl), 'rb')
-        encryptedPassword = gpg.decrypt_file(passwordFile)
-        passwordFile.close()
-        passswords.append(str(encryptedPassword))
+    for filePathEl in pathToPasswordDir.iterdir():
+        with open(filePathEl, 'rb') as file:
+            passwords.append( gpg.decrypt_file(file))
+
     
     listofFound = []
-    for passwordStrEl in passswords:
-        print(passwordStrEl)
+    for passwordStrEl in passwords:
         hasBeenFound = passwordHasBeenFound(str(passwordStrEl))
         if hasBeenFound:
             listofFound.append(str(passwordStrEl))
-        
+        print(passwordStrEl)
 
 if __name__ == "__main__":
     main()
