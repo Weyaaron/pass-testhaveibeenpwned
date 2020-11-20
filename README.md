@@ -1,7 +1,7 @@
 # pass-testhaveibeenpwned
 
 This python script  runs your pass-store [1] against a database of known leaked passwords[2].
-The critical steps happens offline, you may find technical details at [3]. Your passwords never
+The critical steps happen offline, you may find technical details at [3]. Your passwords never
 leave your machine.
 
 It is work in progress, but should be usable as is. Some (early) versions
